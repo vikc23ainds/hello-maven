@@ -10,13 +10,20 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: Maven@3
+- task: NodeTool@0
   inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.11'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
+    versionSpec: '18.x'
+
+- script: |
+    npm install
+  displayName: 'Install Dependencies'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '.'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+
+- publish: $(Build.ArtifactStagingDirectory)/app.zip
+  artifact: drop
